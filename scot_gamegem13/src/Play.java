@@ -1,3 +1,5 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.newdawn.slick.*;
@@ -37,7 +39,8 @@ public class Play extends BasicGameState{
 	Image virus;
 	int wound_active=2;
 	int virus_existing =0;
-	float[][] spawned_virus = new float[20][2];
+	
+	ArrayList<SimpleVirus> spawned_virus = new ArrayList<SimpleVirus>(20);
 	//for red cells
 	int initializer = 70;
 	int red_alive =0; // passing right end -> respawn from left end 
@@ -70,14 +73,15 @@ public class Play extends BasicGameState{
 		}
 		for(int j=0; j<wound_active; j++){
 			if(spawn_timer[j]<=0 && virus_existing <= max_virus){
-				spawned_virus[virus_existing][0]=spawn[j][0];
-				spawned_virus[virus_existing][1]=spawn[j][1];
+				System.out.println(virus_existing);
+				spawned_virus.add(new SimpleVirus(spawn[j][0], spawn[j][1], red_location));
+
 				virus_existing ++;
 				spawn_timer[j]+=virus_timer*virus_existing;
 			}
 		}
 		for (int k=0; k<virus_existing; k++){
-			virus.drawCentered(spawned_virus[k][0], spawned_virus[k][1]);
+			virus.drawCentered(spawned_virus.get(k).getX(), spawned_virus.get(k).getY());
 		}
 		for (int z=0; z<red_alive; z++){
 			red.drawCentered(red_location[z][0], red_location[z][1]);
@@ -94,52 +98,37 @@ public class Play extends BasicGameState{
 		for (int i=0; i<wound_active; i++){
 			spawn_timer[i] -=10;
 		}
+		// For each virus
 		for(int j=0; j<virus_existing; j++){
 			//spawned_virus[j][0]+=flow_speed;
-			if (spawned_virus[j][0]>=endX-16)
-				spawned_virus[j][0]=endX-16;
-			if (spawned_virus[j][0]<16)
-				spawned_virus[j][0]=16;
-			if (spawned_virus[j][1]>=endY-16)
-				spawned_virus[j][1]=endY-16;
-			if (spawned_virus[j][1]<16)
-				spawned_virus[j][1]=16;
-			if(((p1X-spawned_virus[j][0])*(p1X-spawned_virus[j][0])
-					+(p1Y-spawned_virus[j][1])*(p1Y-spawned_virus[j][1]))<32*32){
+			
+			if (spawned_virus.get(j).getX()>=endX-16)
+				spawned_virus.get(j).setX(endX-16);
+			if (spawned_virus.get(j).getX()<16)
+				spawned_virus.get(j).setX(16);
+			if (spawned_virus.get(j).getY()>=endY-16)
+				spawned_virus.get(j).setY(endY-16);
+			if (spawned_virus.get(j).getY()<16)
+				spawned_virus.get(j).setY(16);
+			if(((p1X-spawned_virus.get(j).getX())*(p1X-spawned_virus.get(j).getX())
+					+(p1Y-spawned_virus.get(j).getY())*(p1Y-spawned_virus.get(j).getY()))<32*32){
 				for (int y=j; y<virus_existing-1; y++){
-					spawned_virus[y][0]=spawned_virus[y+1][0];
-					spawned_virus[y][1]=spawned_virus[y+1][1];
+					spawned_virus.get(y).setX(spawned_virus.get(y+1).getX());
+					spawned_virus.get(y).setY(spawned_virus.get(y+1).getX());
 				}
 				virus_existing--;
 				p1_slain++;
 			}
-			if(((p2X-spawned_virus[j][0])*(p2X-spawned_virus[j][0])
-					+(p2Y-spawned_virus[j][1])*(p2Y-spawned_virus[j][1]))<32*32){
+			if(((p2X-spawned_virus.get(j).getX())*(p2X-spawned_virus.get(j).getX())
+					+(p2Y-spawned_virus.get(j).getY())*(p2Y-spawned_virus.get(j).getY()))<32*32){
 				for (int y=j; y<virus_existing-1; y++){
-					spawned_virus[y][0]=spawned_virus[y+1][0];
-					spawned_virus[y][1]=spawned_virus[y+1][1];
+					spawned_virus.get(y).setX(spawned_virus.get(y+1).getX());
+					spawned_virus.get(y).setY(spawned_virus.get(y+1).getY());
 				}
 
 				virus_existing--;
 				p2_slain++;
-			}
-			for (int x=0; x<red_alive; x++){
-				float min=100000;
-				if(((spawned_virus[j][0]-red_location[x][0])*(spawned_virus[j][0]-red_location[x][0])
-						+(spawned_virus[j][1]-red_location[x][1])*(spawned_virus[j][1]-red_location[x][1]))<min){
-					min=((spawned_virus[j][0]-red_location[x][0])*(spawned_virus[j][0]-red_location[x][0])
-							+(spawned_virus[j][1]-red_location[x][1])*(spawned_virus[j][1]-red_location[x][1]));
-					minX=red_location[x][0];
-					minY=red_location[x][1];
-				}
-				
-				System.out.println(spawned_virus[j][0]+ " "+minX+" "+Math.sqrt(min)+" "+(spawned_virus[j][0]-minX)/Math.sqrt(min));
-				if (min!=100000){
-					spawned_virus[j][0]+=(spawned_virus[j][0]-minX)/Math.sqrt(min);
-					spawned_virus[j][1]+=(spawned_virus[j][1]-minY)/Math.sqrt(min);
-					break;}
-			}
-				
+			}	
 		}
 		for (int k=0; k<red_alive; k++){
 			red_location[k][0]+=red_speed+flow_speed;
@@ -150,8 +139,8 @@ public class Play extends BasicGameState{
 			}
 			for (int z=0; z<virus_existing; z++){
 				
-				if(((red_location[k][0]-spawned_virus[z][0])*(red_location[k][0]-spawned_virus[z][0])
-						+(red_location[k][1]-spawned_virus[z][1])*(red_location[k][1]-spawned_virus[z][1]))<32*32){
+				if(((red_location[k][0]-spawned_virus.get(z).getX())*(red_location[k][0]-spawned_virus.get(z).getX())
+						+(red_location[k][1]-spawned_virus.get(z).getY())*(red_location[k][1]-spawned_virus.get(z).getY()))<32*32){
 					for (int y=k; y<red_alive-1; y++){
 						red_location[y][0]=red_location[y+1][0];
 						red_location[y][1]=red_location[y+1][1];
