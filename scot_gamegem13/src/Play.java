@@ -59,7 +59,7 @@ public class Play extends BasicGameState{
 		red = new Image("res/red.png");
 		virus = new Image("res/virus.png");
 		for (;initializer>0; red_alive+=1, initializer-=1){
-			System.out.println(red_alive+" ");
+			//System.out.println(red_alive+" ");
 			red_location[red_alive][1]=lane_finder.nextInt(endX-64)+32;
 			red_location[red_alive][0]=(initializer*120)/7;
 		}
@@ -74,11 +74,13 @@ public class Play extends BasicGameState{
 		}
 		for(int j=0; j<wound_active; j++){
 			if(spawn_timer[j]<=0 && virus_existing <= max_virus){
-				System.out.println(virus_existing);
+				//System.out.println(virus_existing);
 				spawned_virus.add(new SimpleVirus(spawn[j][0], spawn[j][1], red_location));
 
 				virus_existing ++;
 				spawn_timer[j]+=virus_timer*virus_existing;
+
+				spawned_virus.get(virus_existing-1).computeShortestDistance();
 			}
 		}
 		for (int k=0; k<virus_existing; k++){
@@ -139,14 +141,18 @@ public class Play extends BasicGameState{
 				red_location[k][1]=lane_finder.nextInt(endX-64)+32;
 			}
 			for (int z=0; z<virus_existing; z++){
-				
+
+				spawned_virus.get(z).chasing();
 				if(((red_location[k][0]-spawned_virus.get(z).getX())*(red_location[k][0]-spawned_virus.get(z).getX())
 						+(red_location[k][1]-spawned_virus.get(z).getY())*(red_location[k][1]-spawned_virus.get(z).getY()))<32*32){
 					for (int y=k; y<red_alive-1; y++){
 						red_location[y][0]=red_location[y+1][0];
 						red_location[y][1]=red_location[y+1][1];
 					}
-					red_alive-=1;
+					spawned_virus.get(z).setRed(--red_alive);
+					// red_location updated
+					spawned_virus.get(z).setRedLocation(red_location);
+					spawned_virus.get(z).computeShortestDistance();
 				}
 			}
 		}
