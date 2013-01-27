@@ -20,8 +20,9 @@ public class Play extends BasicGameState{
 	final float player_speed = 2;
 	final float virus_speed = (float) 1.5;
 	final float red_speed = (float) 0.5;
-
+	float p1X_temp, p1Y_temp, p2X_temp, p2Y_temp;
 	float minX, minY;
+	int[] collision = new int[70];
 	int p1_slain = 0;
 	int p2_slain = 0;
 	float flow_speed = 0.5f;
@@ -128,7 +129,7 @@ public class Play extends BasicGameState{
 
 				virus_existing--;
 				p2_slain++;
-			}	
+			}
 		}
 		for (int k=0; k<red_alive; k++){
 			red_location[k][0]+=red_speed+flow_speed;
@@ -149,49 +150,89 @@ public class Play extends BasicGameState{
 				}
 			}
 		}
+		for (int i=0; i<red_alive; i++){
+			if((p1X-red_location[i][0])*(p1X-red_location[i][0])
+					+(p1Y-red_location[i][1])*(p1Y-red_location[i][1])<32*32){
+				collision[i]=0;
+			}
+			else{
+				collision[i]=1;
+			}
+			if(collision[i]==0){
+				red_location[i][0]+=(p1X-p1X_temp);
+				red_location[i][1]+=(p1Y-p1Y_temp);
+				p1X_temp=p1X;
+				p1Y_temp=p1Y;
+				collision[i]=1;
+			}
+			if((p2X-red_location[i][0])*(p2X-red_location[i][0])
+					+(p2Y-red_location[i][1])*(p2Y-red_location[i][1])<32*32){
+				collision[i]=2;
+			}
+			else{
+				collision[i]=3;
+			}
+			if(collision[i]==2){
+				red_location[i][0]+=(p2X-p2X_temp);
+				red_location[i][1]+=(p2Y-p2Y_temp);
+				p2X_temp=p2X;
+				p2Y_temp=p2Y;
+				collision[i]=3;
+			}
+		}
 		if(input.isKeyDown(Input.KEY_W)){
+			p1Y_temp=p1Y;
 			p1Y-=player_speed;
 			if(p1Y<=16)
 				p1Y=16;
 		}
 		if(input.isKeyDown(Input.KEY_S)){
+			p1Y_temp=p1Y;
 			p1Y+=player_speed;
 			if(p1Y>=endY-16)
 				p1Y=endY-16;
 		}
 		if(input.isKeyDown(Input.KEY_A)){
+			p1X_temp=p1X;
 			p1X-=player_speed;
 			if(p1X<=16)
 				p1X=16;
 		}
 		if(input.isKeyDown(Input.KEY_D)){
+			p1X_temp=p1X;
 			p1X+=player_speed;
 			if(p1X>=endX-16)
 				p1X=endX-16;
 		}
 		if(input.isKeyDown(Input.KEY_UP)){
+			p2Y_temp=p2Y;
 			p2Y-=player_speed;
 			if(p2Y<=16)
 				p2Y=16;
 		}
 		if(input.isKeyDown(Input.KEY_DOWN)){
+			p2Y_temp=p2Y;
 			p2Y+=player_speed;
 			if(p2Y>=endY-16)
 				p2Y=endY-16;
 		}
 		if(input.isKeyDown(Input.KEY_LEFT)){
+			p2X_temp=p2X;
 			p2X-=player_speed;
 			if(p2X<=16)
 				p2X=16;
 		}
 		if(input.isKeyDown(Input.KEY_RIGHT)){
+			p2X_temp=p2X;
 			p2X+=player_speed;
 			if(p2X>=endX-16)
 				p2X=endX-16;
 		}
+		p1X_temp=p1X;
 		p1X+=flow_speed;
 		if(p1X>=endX-16)
 			p1X=endX-16;
+		p2X_temp=p2X;
 		p2X+=flow_speed;
 		if(p2X>=endX-16)
 			p2X=endX-16;
