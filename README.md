@@ -7,9 +7,11 @@ protect the red blood cells to keep your heart beating. Even better, do with a f
 Acknowledgements
 
 Music:
-Menu Music: Electric Dreams by Perturbator 
-Play Music: Crystals by M|O|O|N
+
+, Menu Music: Electric Dreams by Perturbator 
+
+, Play Music: Crystals by M|O|O|N
 
 Pictures from Google:
-White Blood Cell
-Virus
+, White Blood Cell
+, Virus
